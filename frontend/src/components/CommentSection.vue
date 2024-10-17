@@ -1,11 +1,28 @@
 <script setup>
 import { ref } from 'vue';
 
+// Sanitize function to escape HTML tags
+const escapeHTML = (unsafeText) => {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return unsafeText.replace(/[&<>"']/g, (m) => map[m]);
+};
+
 const comment = ref('');
 const comments = ref('');
 
+// Submit comment with sanitization to prevent rendering HTML tags
 const submitComment = () => {
-  comments.value += `<p>${comment.value}</p>`;
+  const sanitizedComment = escapeHTML(comment.value);  // Sanitize the comment
+  if(sanitizedComment == ""){
+    return;
+  }
+  comments.value += `<p>${sanitizedComment}</p>`;      // Add sanitized comment
   comment.value = '';
 };
 </script>

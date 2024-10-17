@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:5173"
+    volumes:
+      - ./frontend:/app
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+    environment:
+      - VITE_NAME=FelixIvander
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/db:/app/db
+    environment:
+      - NAME=FelixIvander
