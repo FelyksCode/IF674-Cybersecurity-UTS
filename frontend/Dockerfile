@@ -1,13 +1,18 @@
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/frontend
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY frontend/ .
 
-EXPOSE 5173
+# Copy SSL certificates into the container
+COPY ./certs/fullchain.pem /etc/ssl/certs/
+COPY ./certs/privkey.pem /etc/ssl/private/
 
-CMD ["npm", "run", "dev"]
+#EXPOSE 5173
+EXPOSE 443
+
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

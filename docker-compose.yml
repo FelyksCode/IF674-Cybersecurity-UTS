@@ -4,13 +4,14 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./frontend/Dockerfile
     ports:
-      - "80:5173"
+      - "443:443"
     volumes:
       - ./frontend:/app
-    command: npm run dev -- --host 0.0.0.0
+      - ./certs/fullchain.pem:/etc/ssl/certs/fullchain.pem
+      - ./certs/privkey.pem:/etc/ssl/private/privkey.pem
     depends_on:
       - backend
     environment:
@@ -18,11 +19,14 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./backend/Dockerfile
     ports:
       - "3000:3000"
+      - "80:80"
     volumes:
       - ./backend/db:/app/db
+      - ./certs:/etc/ssl/certs
+      - ./certs:/etc/ssl/private
     environment:
       - NAME=FelixIvander

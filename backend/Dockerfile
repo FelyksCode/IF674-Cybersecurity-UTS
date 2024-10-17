@@ -1,13 +1,17 @@
 FROM node:18
 
-WORKDIR /app
+WORKDIR /app/backend
 
-COPY package*.json ./
+COPY backend/package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY backend/ .
 
-EXPOSE 3000
+EXPOSE 80 3000
 
-CMD ["npm", "start"]
+# Menyalin sertifikat SSL ke dalam container
+COPY ./certs/fullchain.pem /etc/ssl/certs/fullchain.pem
+COPY ./certs/privkey.pem /etc/ssl/private/privkey.pem
+
+CMD ["node", "server.js"]

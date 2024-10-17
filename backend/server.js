@@ -5,14 +5,32 @@ import sqlite3 from 'sqlite3';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
+import https from 'https';
+import fs from 'fs';
 
 const app = express();
+
+// Memuat sertifikat SSL
+const options = {
+  key: fs.readFileSync('/etc/ssl/private/privkey.pem'),
+  cert: fs.readFileSync('/etc/ssl/certs/fullchain.pem')
+};
 
 // Middlewares
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost',
+  origin: ['https://localhost/FelixIvander/',
+           'https://localhost',
+           'https://localhost:443',
+	   'https://4.200.26.31/FelixIvander/',
+	   'https://4.200.26.31',
+	   'https://4.200.26.31:443',
+           'https://felixivander.my.id/FelixIvander/',
+           'https://felixivander.my.id',
+           'https://www.felixivander.my.id/FelixIvander/',
+           'https://www.felixivander.my.id',
+	  ],
   credentials: true,
   optionsSuccessStatus: 200,
 }));
@@ -91,6 +109,18 @@ app.get('/api/file', (req, res) => {
   res.sendFile(filePath);
 });
 
+// Middleware to redirect HTTP to HTTPS
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(`https://${req.hostname}${req.url}`);
+  }
+  next();
+});
+
+app.get('/', (req, res) => {
+  res.redirect('https://4.200.26.31/'); // Redirect to your frontend page
+});
+
 // Catch-all route for undefined API endpoints
 app.use((req, res) => {
   res.status(404).json({ message: 'API route not found' });
@@ -99,6 +129,11 @@ app.use((req, res) => {
 // Apply the error handler middleware
 app.use(errorHandler);
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+app.listen(80, () => {
+  console.log('Server running on port 80');
+});
+
+// Membuat server HTTPS
+https.createServer(options, app).listen(3000, () => {
+  console.log('Server running on https://localhost:443');
 });
